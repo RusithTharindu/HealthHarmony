@@ -1,6 +1,7 @@
+"use server";
+
 import { ID, Query } from "node-appwrite"
 import { users } from "../appwrite.config"
-import { parseStringify } from "../utils";
 
 export const createUser = async (user: CreateUserParams) => {
     //logic for creating a new authantication appwrite user
@@ -14,9 +15,9 @@ export const createUser = async (user: CreateUserParams) => {
             user.name
         );
 
-        console.log({newUser})
+        console.log(newUser)
 
-        return parseStringify(newUser);
+        return newUser;
 
     } catch (error: any) {
         if(error && error?.code === 409 ) {
@@ -25,8 +26,15 @@ export const createUser = async (user: CreateUserParams) => {
             const documents = await users.list([
                 Query.equal('email', [user.email])
             ])
-
-            return documents?.users[0];
+            
+            //new feature - dilantha
+            if(documents.total > 0) {
+                return documents?.users[0];
+            }
+            
         }
+
+        console.error("an error occured when creating a new user: " ,error);
+        throw error;
     }
 }
