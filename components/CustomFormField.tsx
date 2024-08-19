@@ -1,11 +1,8 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -13,19 +10,26 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Control } from "react-hook-form";
-import { E164Number } from "libphonenumber-js/core"; // Import the 'E164Number' type from the appropriate module
-import { FormFieldType } from "./forms/PatientForm";
+// import { FormFieldType } from "./forms/PatientForm";
 import Image from "next/image";
 import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";
+import { E164Number } from "libphonenumber-js/core";
 import DatePicker from "react-datepicker";
-
 import "react-datepicker/dist/react-datepicker.css";
-import { render } from "react-dom";
-import { Select, SelectContent, SelectTrigger } from "./ui/select";
-import { SelectValue } from "@radix-ui/react-select";
+import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
+
+export enum FormFieldType {
+  INPUT = "input",
+  TEXTAREA = "textarea",
+  PHONE_INPUT = "phoneInput",
+  CHECKBOX = "checkbox",
+  DATE_PICKER = "datePicker",
+  SELECT = "select",
+  SKELETON = "skeleton",
+}
 
 interface CustomProps {
   control: Control<any>;
@@ -60,7 +64,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           {iconSrc && (
             <Image
               src={iconSrc}
-              alt={iconAlt || "Icon"}
+              alt={iconAlt || "icon"}
               width={24}
               height={24}
               className="ml-2"
@@ -68,17 +72,26 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           )}
           <FormControl>
             <Input
-              placeholder={placeholder}
               {...field}
+              placeholder={placeholder}
               className="shad-input border-0"
             />
           </FormControl>
         </div>
       );
-      break;
+    case FormFieldType.TEXTAREA:
+      return (
+        <FormControl>
+          <Textarea
+            placeholder={placeholder}
+            {...field}
+            className="shad-textArea"
+            disabled={props.disabled}
+          />
+        </FormControl>
+      );
     case FormFieldType.PHONE_INPUT:
       return (
-        //using of react-phone-number-input package https://www.npmjs.com/package/react-phone-number-input
         <FormControl>
           <PhoneInput
             defaultCountry="LK"
@@ -98,30 +111,28 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
             src="/assets/icons/calendar.svg"
             height={24}
             width={24}
-            alt="calander"
+            alt="calendar"
             className="ml-2"
           />
           <FormControl>
             <DatePicker
               selected={field.value}
               onChange={(date) => field.onChange(date)}
-              dateFormat={dateFormat ?? "MM/dd/yyyy"}
               showTimeSelect={showTimeSelect ?? false}
+              dateFormat={dateFormat ?? "MM/dd/yyyy"}
               timeInputLabel="Time:"
               wrapperClassName="date-picker"
             />
           </FormControl>
         </div>
       );
-    case FormFieldType.SKELETON:
-      return renderSkeleton ? renderSkeleton(field) : null;
     case FormFieldType.SELECT:
       return (
         <FormControl>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <FormControl>
               <SelectTrigger className="shad-select-trigger">
-                <SelectValue placeholder={placeholder}></SelectValue>
+                <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
             <SelectContent className="shad-select-content">
@@ -130,17 +141,8 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           </Select>
         </FormControl>
       );
-    case FormFieldType.TEXTAREA:
-      return (
-        <FormControl>
-          <Textarea
-            placeholder={placeholder}
-            {...field}
-            className="shad-textArea"
-            disabled={props.disabled}
-          ></Textarea>
-        </FormControl>
-      );
+    case FormFieldType.SKELETON:
+      return renderSkeleton ? renderSkeleton(field) : null;
     case FormFieldType.CHECKBOX:
       return (
         <FormControl>
@@ -150,8 +152,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
               checked={field.value}
               onCheckedChange={field.onChange}
             />
-            <label htmlFor={props.name} className="checkbox-label">
-              {" "}
+            <label className="checkbox-label" htmlFor={props.name}>
               {props.label}
             </label>
           </div>
@@ -164,7 +165,6 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 
 const CustomFormField = (props: CustomProps) => {
   const { control, fieldType, name, label } = props;
-
   return (
     <FormField
       control={control}
@@ -174,6 +174,7 @@ const CustomFormField = (props: CustomProps) => {
           {fieldType !== FormFieldType.CHECKBOX && label && (
             <FormLabel>{label}</FormLabel>
           )}
+
           <RenderField field={field} props={props} />
           <FormMessage className="shad-error" />
         </FormItem>

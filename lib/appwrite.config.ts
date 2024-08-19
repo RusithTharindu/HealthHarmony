@@ -1,15 +1,16 @@
 import * as sdk from 'node-appwrite'
 
-const {
+export const {
     PROJECT_ID, API_KEY, DATABASE_ID, PATIENT_COLLECTION_ID, DOCTOR_C0LLECTION_ID, APPOINTMENT_COLLECTION_ID,
-    NEXT_PUBLIC_BUCKET_ID : BUCKET_ID,
-    NEXT_PUBLIC_ENDPOINT: ENDPOINT
+    // NEXT_PUBLIC_BUCKET_ID : BUCKET_ID,
+    NEXT_PUBLIC_BUCKET_ID,
+    NEXT_PUBLIC_ENDPOINT
 } = process.env;
 
 const client = new sdk.Client();
 
 client
-    .setEndpoint(ENDPOINT!)
+    .setEndpoint(NEXT_PUBLIC_ENDPOINT!)
     .setProject(PROJECT_ID!)
     .setKey(API_KEY!);
 
